@@ -96,6 +96,10 @@ namespace CSharpIntermediate2
     {
         static void Main(string[] args)
         {
+            var people = new List<Person>();
+            people.Add(new Employee());
+            people.Add(new Janitor());
+
             Console.ReadKey();
         }
         static void PrintPeople(List<Person> people)
