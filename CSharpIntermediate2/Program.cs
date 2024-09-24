@@ -183,8 +183,14 @@
 // An interface cannot have implementation in it
 // Unlike class inheritence, you can implement as many interfaces as you want
 
+using System.Collections.Concurrent;
+
 namespace CSharpIntermediate2
 {
+    interface IItem
+    {
+        string Name { get; }
+    }
     interface IMovable
     {
         void Move();
@@ -194,11 +200,15 @@ namespace CSharpIntermediate2
         decimal Price { get; }
         void Buy();
     }
-    class Car : IMovable, IBuyable
+    class Car : IItem, IMovable, IBuyable
     {
         public decimal Price { get; private set; }
-        public Car(decimal price)
+
+        public string Name { get; private set; }
+
+        public Car(string name, decimal price)
         {
+            Name = name;
             Price = price;
         }
         public void Buy()
@@ -211,12 +221,91 @@ namespace CSharpIntermediate2
         }
 
     }
+    class Chair : IItem, IMovable
+    {
+        public string Name { get; private set; }
+        public Chair(string name)
+        {
+            Name = name;
+        }
+        public void Move()
+        {
+            Console.WriteLine("Moving the {0} chair!", Name);
+        }
+    }
 
     internal class Program
     {
         static void Main(string[] args)
         {
-            Console.ReadKey();
+            var items = new List<IItem>();
+            items.Add(new Car("Car1", 2000));
+            items.Add(new Chair("Chair1"));
+            items.Add(new Car("Car2", 2500));
+            items.Add(new Chair("Chair2"));
+
+            while (true)
+            {
+                var chosenItem = ChooseItem(items);
+                var movable = chosenItem as IMovable;
+                var buyable = chosenItem as IBuyable;
+
+                Console.Write("What do you want to do: ");
+                var input = Console.ReadLine();
+
+                if (movable != null && input == "move")
+                {
+                    movable.Move();
+                }
+                else if (buyable != null && input == "buy")
+                {
+                    buyable.Buy();
+                }
+                else
+                {
+                    Console.WriteLine("Invalid choice!");
+                }
+            }
+
+
+            static IItem ChooseItem(List<IItem> items)
+            {
+                while (true)
+                {
+                    Console.WriteLine("------------------------------------");
+
+                    var index = 1;
+                    foreach (var item in items)
+                    {
+                        Console.Write("[{0}] - {1} ", index, item.Name);
+
+                        var buyable = item as IBuyable;
+                        if (buyable != null)
+                        {
+                            Console.Write("- costs {0}", buyable.Price);
+                        }
+
+                        var movable = item as IMovable;
+                        if (movable != null)
+                        {
+                            Console.Write("- can move");
+                        }
+
+                        Console.WriteLine();
+
+                        index++;
+                    }
+                    Console.Write("Choose item: ");
+                    var itemIndex = int.Parse(Console.ReadLine());
+
+                    if (itemIndex < 0 || itemIndex >= items.Count)
+                    {
+                        Console.WriteLine("invalid selection!");
+                        continue;
+                    }
+                    return items[itemIndex - 1];
+                }
+            }
         }
     }
 }
