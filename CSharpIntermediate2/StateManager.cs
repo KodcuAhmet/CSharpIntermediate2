@@ -310,18 +310,26 @@
 
 #region
 
-using CSharpIntermediate2.States;
-using System.Windows.Input;
-
+using CSharpIntermediate2.Abstract;
 
 namespace CSharpIntermediate2
 {
-    internal class Program
+    class StateManager
     {
-        static void Main(string[] args)
+        private IState _state;
+        public void StateSwitch(IState state)
         {
-            var manager = new StateManager();
-            manager.Run(new MainManuState(manager));
+            _state = state;
+        }
+        public void Run(IState initialState)
+        {
+            _state = initialState;
+            while (true)
+            {
+                _state.Render();
+                var command = _state.GetCommand();
+                command.Execute();
+            }
         }
     }
 }
